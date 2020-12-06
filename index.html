@@ -1,1 +1,202 @@
-<h1>Hello, world!<h1>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>SANKEY Experiment</title>
+<style>
+
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .2;
+}
+
+.link:hover {
+  stroke-opacity: .5;
+}
+
+</style>
+<body>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="sankey.js"></script>
+<script>
+
+var units = "Widgets";
+
+// set the dimensions and margins of the graph
+// TO DO: Make it so it fits the page and is panable
+var margin = {top: 10, right: 10, bottom: 10, left: 10},
+    width = 800 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// format variables
+var formatNumber = d3.format(",.0f"),    // zero decimal places
+    format = function(d) { return formatNumber(d) + " " + units; },
+    color = d3.scaleOrdinal(d3.schemeCategory10);
+
+// append the svg object to the body of the page
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Set the sankey diagram properties
+// TO DO: Set these widths automatically
+var sankey = d3.sankey()
+    .nodeWidth(90)
+    .nodePadding(40)
+    .size([width, height]);
+
+var path = sankey.link();
+
+// load the data
+d3.csv("sankey.csv", function(error, data) {
+
+  //set up graph in same style as original example but empty
+  //e.g. this will be filled like the original JSON
+  graph = {"nodes" : [], "links" : []};
+
+  data.forEach(function (d) {
+    // d is a placeholder variable
+    // forEach is an object method
+    // into the new list of nodes, push all from the source column
+    // into the new list of nodes, add all from the target column
+    // carry over the new list of links
+    graph.nodes.push({ "name": d.source });
+    graph.nodes.push({ "name": d.target });
+    graph.links.push({ "source": d.source,
+                       "target": d.target,
+                       "value": +d.value });
+   });
+
+  // return only the distinct / unique nodes
+  // nests each node according to name (effect of getting rid of old values)
+  // store result as object in graph.nodes
+  graph.nodes = d3.keys(d3.nest()
+    .key(function (d) { return d.name; })
+    .object(graph.nodes));
+
+  // loop through each link replacing the text with its index from node
+  // just makes the links referenced by number
+  graph.links.forEach(function (d, i) {
+    graph.links[i].source = graph.nodes.indexOf(graph.links[i].source);
+    graph.links[i].target = graph.nodes.indexOf(graph.links[i].target);
+  });
+
+  // now loop through each nodes to make nodes an array of objects
+  // rather than an array of strings
+  // ASSOCIATVE ARRAY
+  graph.nodes.forEach(function (d, i) {
+    graph.nodes[i] = { "name": d };
+  });
+
+    //.layour does ??? nothing when changed?
+  sankey
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .layout(32);
+
+  // add in the links
+  var link = svg.append("g").selectAll(".link")
+      .data(graph.links)
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", path)
+      .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+      .sort(function(a, b) { return b.dy - a.dy; });
+
+  // add the link titles
+  link.append("title")
+        .text(function(d) {
+    		return d.source.name + " → " +
+                d.target.name + "\n" + format(d.value); });
+
+  // add in the nodes
+  var node = svg.append("g").selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .attr("transform", function(d) {
+		  return "translate(" + d.x + "," + d.y + ")"; })
+      /*.call(d3.drag()
+        .subject(function(d) {
+          return d;
+        })
+        .on("start", function() {
+          this.parentNode.appendChild(this);
+        });
+        .on("drag", dragmove));*/
+
+  // TO DO: GET ALL PAGES FROM WIX INTO THE CSV
+  // TO DO: GET THE URL OF THE FIRST IMAGE IN EVERY PAGE INTO THE CSV
+  // TO DO: MAKE SURE THE CSV IS STORED ON YOUR WEBSITE
+  // TO DO: GET THOSE IMAGES INTO THE THING
+  // ADJUST TO MAKE
+  // TO DO: MAKE IT PANABLE
+  // TO DO: MAKE IT ZOOMABLE
+  // TO DO: MAKE IT PRETTY
+  // add the rectangles for the nodes
+  node
+      .append("svg:a")
+      .attr("xlink:href", "http://en.wikipedia.org")
+      .append("svg:image")
+      .attr("xlink:href","https://i2-prod.mirror.co.uk/incoming/article10629116.ece/ALTERNATES/s1227b/PROD-SWNS_FRUIT_MOULDS_1.jpg")
+      .attr("height", sankey.nodeWidth())
+      .attr("width", sankey.nodeWidth())
+      .append("rect")
+      .attr("height", sankey.nodeWidth())
+      .attr("width", sankey.nodeWidth())
+      .style("fill", function(d) {
+		    return d.color = color(d.name.replace(/ .*/, "")); })
+      .style("stroke", function(d) {
+		    return d3.rgb(d.color).darker(2); })
+      .attr("height", function(d) { return d.dy; })
+
+
+      .append("title")
+      .text(function(d) {
+		  return d.name + "\n" + format(d.value); });
+
+  // add in the title for the nodes
+  node.append("text")
+      .attr("x", -6)
+      .attr("y", function(d) { return d.dy / 2; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", "end")
+      .attr("transform", null)
+      .text(function(d) { return d.name; })
+    .filter(function(d) { return d.x < width / 2; })
+      .attr("x", 6 + sankey.nodeWidth())
+      .attr("text-anchor", "start");
+
+  // the function for moving the nodes
+/*
+  function dragmove(d) {
+    d3.select(this)
+      .attr("transform",
+            "translate("
+               + d.x + ","
+               + (d.y = Math.max(
+                  0, Math.min(height - d.dy, d3.event.y))
+                 ) + ")");
+    sankey.relayout();
+    link.attr("d", path);
+  }
+*/
+});
+
+</script>
+
+</body>
