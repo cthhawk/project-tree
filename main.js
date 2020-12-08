@@ -286,7 +286,7 @@ d3.csv("node_csv_for_class.csv", function(error, data) {
       .append("svg:image")
       .attr("xlink:href", function(d)
           {
-            return "images/" + node_info[d.name].img;
+            return node_info[d.name].img;
           }
         )
       //set image attribute to node width
