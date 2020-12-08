@@ -1,0 +1,17 @@
+.node text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #bbb;
+  fill: #bbb;
+  font-family:"verdana";
+  font-weight:"bold";
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .6;
+}
+
+.link:hover {
+  stroke-opacity:1;
+}
