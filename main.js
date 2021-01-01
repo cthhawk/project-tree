@@ -63,11 +63,11 @@ d3.csv("node_csv_for_class.csv", function(error, data) {
 
   // Associate colors with tags and themes in the data
   tag_color = {
-    "memory": "#E6B48C",
-    "modularity": "#E66AC2",
-    "vitality": "#87E677",
-    "planarity": "#E68C81",
-    "ephemerality":"#6AD4E6"
+    "imprints": "#E6B48C",
+    "modules": "#E66AC2",
+    "vegetation": "#87E677",
+    "panes": "#E68C81",
+    "ephemera":"#6AD4E6"
   }
 
   // Create legend for tags automatically sized based on number of tags
