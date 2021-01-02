@@ -247,9 +247,9 @@ d3.csv("node_csv_for_class.csv", function(error, data) {
       .sort(function(a, b) { return b.dy - a.dy;})
       // Set link color according to its type
       .style("stroke", function(d) {
-        tag = link_info[d.source.name][d.target.name].type;
-		    return tag_color[tag];
-		  });
+           tag = link_info[d.source.name][d.target.name].type;
+	   return tag_color[tag];
+      });
 
   // add the link titles
   link.append("title")
@@ -278,14 +278,14 @@ d3.csv("node_csv_for_class.csv", function(error, data) {
   // Add in link to website for when clicked
   node
       .append("svg:a")
-      .attr("xlink:href",
-        function(d)
-          {
-            return node_info[d.name].url;
-          }
+      //.attr("xlink:href",
+      .on('click', function(d)
+	{
+	  window.open(node_info[d.name].url);
+  	}	
         )
       // Since links will be opened in an iFrame, force them to open outside of iFramw
-      .attr("xlink:target", "_blank")
+      //.attr("xlink:target", "_blank")
       // Add in image
       .append("svg:image")
       .attr("xlink:href", function(d)
