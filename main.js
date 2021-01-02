@@ -285,7 +285,7 @@ d3.csv("node_csv_for_class.csv", function(error, data) {
           }
         )
       // Since links will be opened in an iFrame, force them to open outside of iFramw
-      .attr("xlink:target", "_parent")
+      .attr("xlink:target", "_blank")
       // Add in image
       .append("svg:image")
       .attr("xlink:href", function(d)
